@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/index.css" />
+    <title>Home Page</title>
+  </head>
+  <body>
+    <header>
+      <p class="logo"><a href="/" class="logolink">Forum</a></p>
+      <ul class="navbar">
+        {{if .Logdin }}
+        <li><a class="navlinks" href="/profile">Profile</a></li>
+        <li><a class="navlinks" href="/logout">Log Out</a></li>
+        {{else}}
+        <li><a class="navlinks" href="/login">Log In</a></li>
+        <li><a class="navlinks" href="/logup">Sign Up</a></li>
+        {{end}}
+      </ul>
+    </header>
+
+    {{ if .Logdin }}
+    <h1>Welcome, {{.Name}}</h1>
+    <form action="/posts" method="post">
+      <label for="post">Add Post:</label>
+      <input
+        type="text"
+        id="post"
+        name="title"
+        placeholder="Post Title"
+        required
+      />
+      <button type="submit">Submit</button>
+    </form>
+    {{end}}
+    <section id="posts-container"></section>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const postsContainer = document.getElementById("posts-container");
+
+        // Use event delegation to handle dynamically loaded like buttons
+        postsContainer.addEventListener("click", function (event) {
+          if (event.target.classList.contains("like-btn")) {
+            const postId = event.target.getAttribute("data-post-id");
+            console.log("Post ID:", postId);
+
+            fetch("http://localhost:8080/like-post", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+              body: `post_id=${postId}`,
+            })
+              .then((response) => {
+                if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+              })
+              .then((data) => console.log("Response from server:", data))
+              .catch((err) => console.error("Fetch error:", err));
+          }
+        });
+
+        loadMorePosts(); // Load initial posts
+      });
+
+      let offset = 0;
+      const limit = 20;
+      let loading = false;
+
+      // Function to load more posts
+      async function loadMorePosts() {
+        if (loading) return;
+        loading = true;
+
+        try {
+          const response = await fetch(`/fetch-posts?offset=${offset}`);
+          const posts = await response.json();
+          const postsContainer = document.getElementById("posts-container");
+          if (!posts || posts.length === 0) return;
+
+          posts.forEach((post) => {
+            const postElement = document.createElement("div");
+            postElement.className = "art";
+            postElement.innerHTML = `
+              <h3 class="title">${post.Title}</h3>
+              <p class="content">${post.Content}</p>
+              <button class="like-btn" data-post-id=${post.ID}>like</button>
+            `;
+            postsContainer.appendChild(postElement);
+          });
+
+          offset += limit;
+
+          if (posts.length < limit) {
+            window.removeEventListener("scroll", handleScroll);
+          }
+        } catch (error) {
+          console.error("Error loading posts:", error);
+        } finally {
+          loading = false;
+        }
+      }
+
+      // Function to handle scroll event
+      function handleScroll() {
+        const scrollPosition = window.scrollY + window.innerHeight;
+        const threshold = document.body.scrollHeight - 500;
+        if (scrollPosition > threshold) {
+          loadMorePosts();
+        }
+      }
+
+      let scrollT = _.throttle(handleScroll, 500);
+      window.addEventListener("scroll", scrollT);
+    </script>
+  </body>
+</html>

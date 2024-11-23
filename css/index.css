@@ -1,0 +1,62 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: gray;
+}
+
+header {
+  height: 60px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+.logo {
+  padding: 15px 0 0 25px;
+  font-size: 2rem;
+}
+
+.logolink {
+  text-decoration: none;
+  color: white;
+}
+
+logolink:hover {
+  color: black;
+}
+
+.navbar {
+  list-style: none;
+  display: flex;
+  width: 200px;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.navbar .navlinks {
+  text-decoration: none;
+  font-size: 1.2rem;
+  color: white;
+}
+
+.title {
+    font-size: 20px;
+
+}
+
+.art {
+    width: 60%;
+    height: 300px;
+    margin: auto;
+}
+
+.like-btn {
+    font-size: 18px;
+}
+
+.content {
+    height: 200px;
+}
