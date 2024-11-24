@@ -1,6 +1,56 @@
 package main
 
 import (
+	"fmt"
+	"net/http"
+	"os"
+
+	"forum/database"
+	"forum/handlers"
+)
+
+func main() {
+	// Initialize database
+	db, err := database.InitializeDB("./my_database.db")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer db.Close()
+
+	Db := &handlers.Handeldb{DB: db}
+	database.CreateTable(Db)
+
+	// Set up routes
+	http.HandleFunc("/", Db.HomePage)
+	http.HandleFunc("/logup", Db.RegisterPage)
+	http.HandleFunc("/login", Db.LoginPage)
+	http.HandleFunc("/create-post", Db.CreatePostPage)
+	http.HandleFunc("/like-post", Db.LikePost)
+	http.HandleFunc("/logout", Db.Logout)
+	http.HandleFunc("/profile", Db.Profile)
+	http.HandleFunc("/posts", Db.AddPosts)
+	http.HandleFunc("/fetch-posts", Db.FetchPosts)
+
+	// Serve CSS
+	css := http.StripPrefix("/css/", http.FileServer(http.Dir("./css")))
+	http.HandleFunc("/css/", func(w http.ResponseWriter, r *http.Request) {
+		_, err := os.ReadFile("." + r.URL.Path)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			return
+		}
+		css.ServeHTTP(w, r)
+	})
+
+	// Start the server
+	fmt.Println("Server is running on port 8080...")
+	fmt.Println(http.ListenAndServe(":8081", nil))
+}
+
+/* package main
+
+import (
 	"crypto/rand"
 	"database/sql"
 	"encoding/base64"
@@ -11,6 +61,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -32,7 +83,7 @@ func main() {
 	Db.createTable()
 
 	http.HandleFunc("/", Db.homePage)
-	http.HandleFunc("/register", Db.registerPage)
+	http.HandleFunc("/logup", Db.registerPage)
 	http.HandleFunc("/login", Db.loginPage)
 	http.HandleFunc("/create-post", Db.createPostPage)
 	http.HandleFunc("/like-post", Db.likePost)
@@ -251,8 +302,12 @@ func (db *handeldb) registerPage(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Email already exists", http.StatusConflict)
 			return
 		}
+		if strings.Contains(username, " ") {
+			http.Error(w, "invalid name", http.StatusForbidden)
+			return
+		}
 		_, err := db.DB.Exec(username)
-		if err != nil {
+		if err == nil {
 			fmt.Println(err)
 			http.Error(w, "sql injection detected", http.StatusForbidden)
 			return
@@ -410,7 +465,7 @@ func (db *handeldb) createPostPage(w http.ResponseWriter, r *http.Request) {
 }
 
 /* like posts handler */
-
+/*
 func (db *handeldb) likePost(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -438,7 +493,7 @@ func (db *handeldb) likePost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// No like exists, add the like
-			insertQuery := "INSERT INTO likes_dislikes (user_id, post_id, is_like) VALUES (?, ?, false)"
+			insertQuery := "INSERT INTO likes_dislikes (user_id, post_id, is_like) VALUES (?, ?, true)"
 			_, insertErr := db.DB.Exec(insertQuery, userID, postID)
 			if insertErr != nil {
 				fmt.Println("failed to add like:", insertErr)
@@ -463,7 +518,9 @@ func (db *handeldb) likePost(w http.ResponseWriter, r *http.Request) {
 
 func (db *handeldb) UseserExist(email string) bool {
 	var exists bool
-	err := db.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email=?)", email).Scan(&exists)
-	fmt.Println(err)
+	if err := db.DB.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email=?)", email).Scan(&exists); err != nil {
+		fmt.Println(err)
+	}
 	return exists
 }
+*/
