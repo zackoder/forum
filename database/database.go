@@ -8,8 +8,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type mydb handlers.Handeldb
-
 // InitializeDB opens a SQLite database and returns the connection.
 func InitializeDB(filepath string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", filepath)
@@ -52,6 +50,23 @@ func CreateTable(Db *handlers.Handeldb) {
 		user_id INTEGER NOT NULL,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY(user_id) REFERENCES users(id)
+	);
+
+	CREATE TABLE IF NOT EXISTS comments (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id INTEGER NOT NULL, 
+		post_id INTEGER NOT NULL,
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY(user_id) REFERENCES users(id),
+		FOREIGN KEY(post_id) REFERENCES posts(id)
+	);
+
+	CREATE TABLE IF NOT EXISTS comment_likes (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		user_id INTEGER NOT NULL,
+		comment_id INTEGER NOT NULL,
+		FOREIGN KEY(user_id) REFERENCES users(id),
+		FOREIGN KEY(comment_id) REFERENCES comments(id)
 	);
 	`
 	_, err := Db.DB.Exec(sqlTable)
