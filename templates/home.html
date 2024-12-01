@@ -13,7 +13,7 @@
         {{if .Logdin }}
         <li><a class="navlinks" href="/profile">Profile</a></li>
         <li><a class="navlinks" href="/logout">Log Out</a></li>
-        {{else}} 
+        {{else}}
         <li><a class="navlinks" href="/login">Log In</a></li>
         <li><a class="navlinks" href="/logup">Log Up</a></li>
         {{end}}
@@ -33,7 +33,7 @@
         required
       />
       <textarea class="post_contant" name="content" id="content"></textarea>
-      <input name="filename" type="file">
+      <input name="filename" type="file" />
       <button type="submit">Submit</button>
     </form>
     {{end}}
@@ -58,7 +58,9 @@
             event.preventDefault();
 
             const form = event.target;
-            const postId = form.querySelector(".comment").getAttribute("data-post-id");
+            const postId = form
+              .querySelector(".comment")
+              .getAttribute("data-post-id");
             const commentText = form.querySelector(".comment").value.trim();
 
             if (commentText === "") {
@@ -67,7 +69,7 @@
             }
 
             handleComment(postId, commentText);
-            form.reset(); 
+            form.reset();
           }
         });
 
@@ -92,7 +94,9 @@
           .then((data) => {
             console.log("Like/Dislike updated:", data);
           })
-          .catch((error) => console.error("Error updating like/dislike:", error));
+          .catch((error) =>
+            console.error("Error updating like/dislike:", error)
+          );
       }
 
       function handleComment(postId, comment) {
@@ -137,6 +141,8 @@
             const postElement = document.createElement("div");
             postElement.className = "post-container";
             postElement.innerHTML = `
+           
+           
               <h3 class="title">${post.Title}</h3>
               <p class="content">${post.Content}</p>
               <div class="like-dislike-container">
@@ -147,8 +153,8 @@
                 <input name="comment" class="comment" data-post-id=${post.ID} type="text" placeholder="Add your comment" required />
                 <button type="submit" class="send_comment"><img class="sendimg" src="../css/send.png" alt="Send"></button>
               </form>
+          
             `;
-              
             postsContainer.appendChild(postElement);
           });
 

@@ -155,7 +155,8 @@ func (db *Handeldb) FetchPosts(w http.ResponseWriter, r *http.Request) {
 	var posts []Post
 	for rows.Next() {
 		var post Post
-		if err := rows.Scan(&post.ID, &post.Title, &post.Content); err != nil {
+		// var user_id int
+		if err := rows.Scan(&post.ID, /* &user_id, */ &post.Title, &post.Content); err != nil {
 			http.Error(w, "Error scanning posts", http.StatusInternalServerError)
 			return
 		}
