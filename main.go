@@ -10,7 +10,6 @@ import (
 )
 
 func main() {
-	// Initialize database
 	db, err := database.InitializeDB("./my_database.db")
 	if err != nil {
 		fmt.Println(err)
@@ -19,9 +18,9 @@ func main() {
 	defer db.Close()
 
 	Db := &handlers.Handeldb{DB: db}
-	database.CreateTable(Db)
 
-	// Set up routes
+	_ = []string{"posts", "likes_dislikes", "sessions", "comments", "comment_likes"}
+
 	http.HandleFunc("/", Db.HomePage)
 	http.HandleFunc("/logup", Db.RegisterPage)
 	http.HandleFunc("/login", Db.LoginPage)
@@ -31,8 +30,8 @@ func main() {
 	http.HandleFunc("/profile", Db.Profile)
 	http.HandleFunc("/posts", Db.AddPosts)
 	http.HandleFunc("/fetch-posts", Db.FetchPosts)
+	http.HandleFunc("/comments", Db.Addcomment)
 
-	// Serve CSS
 	css := http.StripPrefix("/css/", http.FileServer(http.Dir("./css")))
 	http.HandleFunc("/css/", func(w http.ResponseWriter, r *http.Request) {
 		_, err := os.ReadFile("." + r.URL.Path)
@@ -42,10 +41,9 @@ func main() {
 		}
 		css.ServeHTTP(w, r)
 	})
-
-	// Start the server
-	fmt.Println("Server is running on port 8080...")
-	fmt.Println(http.ListenAndServe(":8081", nil))
+	port := ":8080"
+	fmt.Printf("http://localhost%s\n", port)
+	fmt.Println(http.ListenAndServe(port, nil))
 }
 
 /* package main

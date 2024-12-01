@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -23,11 +24,27 @@ func (db *Handeldb) AddPosts(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	query := "INSERT INTO posts (user_id, title, content, category_id) VALUES (?, ?, ?, ?)"
 
 	r.ParseForm()
+	// file, handler, err := r.FormFile("filename")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// dest, err := os.Create("./comming_data/"+ handler.Filename)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Println("./comming_data/"+ handler.Filename)
+	// defer dest.Close()
+	// _, err = io.Copy(dest, file)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
 	title := r.FormValue("title")
-	if _, err := db.DB.Exec(query, usrId, title, "-", 1); err != nil {
+	content := r.FormValue("content")
+	if _, err := db.DB.Exec(query, usrId, title, strings.ReplaceAll(strings.TrimSpace(content), "\r\n", "<br>"), 1); err != nil {
 		fmt.Println(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -90,7 +107,7 @@ func (db *Handeldb) HomePage(w http.ResponseWriter, r *http.Request) {
 			query := "SELECT username FROM users WHERE id = ?"
 			err = db.DB.QueryRow(query, userID).Scan(&name)
 			if err != nil {
-				fmt.Println("could not get user name",err)
+				fmt.Println("could not get user name", err)
 			}
 		}
 	}
@@ -167,6 +184,15 @@ func (db *Handeldb) LikePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	postID := r.FormValue("post_id")
+	var like bool
+	if r.FormValue("like") == "true" {
+		like = true
+	} else if r.FormValue("like") == "false" {
+		like = false
+	} else {
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
+	}
 
 	var userID int
 	err = db.DB.QueryRow("SELECT user_id FROM sessions WHERE token = ?", cookie.Value).Scan(&userID)
@@ -177,12 +203,11 @@ func (db *Handeldb) LikePost(w http.ResponseWriter, r *http.Request) {
 	query := "SELECT id FROM likes_dislikes WHERE user_id = ? AND post_id = ?"
 	var likeID int
 	err = db.DB.QueryRow(query, userID, postID).Scan(&likeID)
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// No like exists, add the like
-			insertQuery := "INSERT INTO likes_dislikes (user_id, post_id, is_like) VALUES (?, ?, true)"
-			_, insertErr := db.DB.Exec(insertQuery, userID, postID)
+			insertQuery := "INSERT INTO likes_dislikes (user_id, post_id, is_like) VALUES (?, ?, ?)"
+			_, insertErr := db.DB.Exec(insertQuery, userID, postID, like)
 			if insertErr != nil {
 				fmt.Println("failed to add like:", insertErr)
 			}
@@ -190,12 +215,28 @@ func (db *Handeldb) LikePost(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("error checking like:", err)
 		}
 	} else {
-		// Like exists, remove it
-		fmt.Println(likeID)
-		deleteQuery := "DELETE FROM likes_dislikes WHERE id = ?"
-		_, deleteErr := db.DB.Exec(deleteQuery, likeID)
-		if deleteErr != nil {
-			fmt.Println("failed to remove like:", deleteErr)
+		var likeval bool
+		err := db.DB.QueryRow("SELECT is_like FROM likes_dislikes WHERE id = ?", likeID).Scan(&likeval)
+		if err != nil {
+			fmt.Println(err)
+		}
+		if likeval != like {
+			updatelike := `UPDATE likes_dislikes
+			SET is_like = ?
+			WHERE id = ?`
+			_, err := db.DB.Exec(updatelike, like, likeID)
+			if err != nil {
+				fmt.Println("error updating like:", err)
+				http.Error(w, "error updating like", http.StatusInternalServerError)
+				return
+			}
+		} else {
+
+			deleteQuery := "DELETE FROM likes_dislikes WHERE id = ?"
+			_, deleteErr := db.DB.Exec(deleteQuery, likeID)
+			if deleteErr != nil {
+				fmt.Println("failed to remove like:", deleteErr)
+			}
 		}
 	}
 
@@ -210,4 +251,40 @@ func (db *Handeldb) UseserExist(email string) bool {
 		fmt.Println(err)
 	}
 	return exists
+}
+
+func (db *Handeldb) Addcomment(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
+
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	var userId int
+	getuserId := "SELECT user_id FROM sessions WHERE token = ?"
+
+	if err := r.ParseForm(); err != nil {
+		fmt.Println(err)
+	}
+
+	content := r.FormValue("comment")
+	fmt.Println(content)
+	err = db.DB.QueryRow(getuserId, cookie.Value).Scan(&userId)
+	if err != nil {
+		fmt.Println(err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	insetComment := "INSERT INTO comments (user_id, post_id, content) VALUES (?,?,?)"
+	_, err = db.DB.Exec(insetComment, userId, 5, content)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
 }

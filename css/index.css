@@ -43,20 +43,103 @@ logolink:hover {
 }
 
 .title {
-    font-size: 20px;
-
+  font-size: 20px;
 }
 
-.art {
-    width: 60%;
-    height: 300px;
-    margin: auto;
+.post-container {
+  width: 60%;
+  height: 400px;
+  border: 1px black solid;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  margin: 20px auto;
 }
 
-.like-btn {
-    font-size: 18px;
+.like-dislike-container {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+}
+
+.like-btn,
+.dislike-btn {
+  display: inline;
+  font-size: 18px;
+  width: 48%;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 8px;
 }
 
 .content {
-    height: 200px;
+  height: 300px;
+  padding: 10px 0 0 10px;
+}
+
+
+.comment_form {
+  margin-top: 10px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-direction: row;
+  width: 100%;
+  padding-left: 10px;
+}
+
+.comment {
+  width: 90%;
+  height: 30px;
+  padding-left: 5px;
+  border-radius: 8px;
+}
+
+.send_comment {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+}
+
+.sendimg {
+  background-color: transparent;
+  width: 25px;
+  height: 25px;
+  margin-left: -4px;
+  margin-bottom: -4px;
+}
+
+.postForm {
+  /* display: none; */
+  height: 300px;
+  width: 600px;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  gap: 20px;
+  border: none;
+  padding: 20px;
+  z-index: 10;
+  background-color: white;
+  border-radius: 8px;
+}
+
+.title_inpt {
+  height: 30px;
+  padding: 8px;
+  border-radius: 8px;
+}
+.create_Post {
+  text-align: center;
+  font-size: 22px;
+  letter-spacing: 3px;
+}
+
+.post_contant {
+  height: 90px;
+  border-radius: 8px;
+  padding: 8px;
+  resize: none;
 }

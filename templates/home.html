@@ -13,7 +13,7 @@
         {{if .Logdin }}
         <li><a class="navlinks" href="/profile">Profile</a></li>
         <li><a class="navlinks" href="/logout">Log Out</a></li>
-        {{else}}
+        {{else}} 
         <li><a class="navlinks" href="/login">Log In</a></li>
         <li><a class="navlinks" href="/logup">Log Up</a></li>
         {{end}}
@@ -22,15 +22,18 @@
 
     {{ if .Logdin }}
     <h1>Welcome, {{.Name}}</h1>
-    <form action="/posts" method="post">
-      <label for="post">Add Post:</label>
+    <form class="postForm" action="/posts" method="post">
+      <label class="create_Post" for="post">Create Post:</label>
       <input
+        class="title_inpt"
         type="text"
         id="post"
         name="title"
         placeholder="Post Title"
         required
       />
+      <textarea class="post_contant" name="content" id="content"></textarea>
+      <input name="filename" type="file">
       <button type="submit">Submit</button>
     </form>
     {{end}}
@@ -40,38 +43,86 @@
       document.addEventListener("DOMContentLoaded", function () {
         const postsContainer = document.getElementById("posts-container");
 
-        // Use event delegation to handle dynamically loaded like buttons
         postsContainer.addEventListener("click", function (event) {
           if (event.target.classList.contains("like-btn")) {
             const postId = event.target.getAttribute("data-post-id");
-            console.log("Post ID:", postId);
-
-            fetch("http://localhost:8080/like-post", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-              },
-              body: `post_id=${postId}`,
-            })
-              .then((response) => {
-                if (!response.ok) {
-                  throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-              })
-              .then((data) => console.log("Response from server:", data))
-              .catch((err) => console.error("Fetch error:", err));
+            handleLike(postId, true);
+          } else if (event.target.classList.contains("dislike-btn")) {
+            const postId = event.target.getAttribute("data-post-id");
+            handleLike(postId, false);
           }
         });
 
-        loadMorePosts(); // Load initial posts
+        postsContainer.addEventListener("submit", function (event) {
+          if (event.target.classList.contains("comment_form")) {
+            event.preventDefault();
+
+            const form = event.target;
+            const postId = form.querySelector(".comment").getAttribute("data-post-id");
+            const commentText = form.querySelector(".comment").value.trim();
+
+            if (commentText === "") {
+              alert("Comment cannot be empty.");
+              return;
+            }
+
+            handleComment(postId, commentText);
+            form.reset(); 
+          }
+        });
+
+        loadMorePosts();
+        window.addEventListener("scroll", _.throttle(handleScroll, 500));
       });
+
+      function handleLike(postId, like) {
+        fetch("/like-post", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ post_id: postId, like }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            console.log("Like/Dislike updated:", data);
+          })
+          .catch((error) => console.error("Error updating like/dislike:", error));
+      }
+
+      function handleComment(postId, comment) {
+        fetch("/submit-comment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ post_id: postId, comment }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then((data) => {
+            if (data.success) {
+              alert("Comment added successfully!");
+            } else {
+              alert("Failed to add comment.");
+            }
+          })
+          .catch((error) => console.error("Error submitting comment:", error));
+      }
 
       let offset = 0;
       const limit = 20;
       let loading = false;
 
-      // Function to load more posts
       async function loadMorePosts() {
         if (loading) return;
         loading = true;
@@ -79,25 +130,29 @@
         try {
           const response = await fetch(`/fetch-posts?offset=${offset}`);
           const posts = await response.json();
-          const postsContainer = document.getElementById("posts-container");
           if (!posts || posts.length === 0) return;
 
+          const postsContainer = document.getElementById("posts-container");
           posts.forEach((post) => {
             const postElement = document.createElement("div");
-            postElement.className = "art";
+            postElement.className = "post-container";
             postElement.innerHTML = `
               <h3 class="title">${post.Title}</h3>
               <p class="content">${post.Content}</p>
-              <button class="like-btn" data-post-id=${post.ID}>like</button>
+              <div class="like-dislike-container">
+                <button class="like-btn" data-post-id=${post.ID}>like</button>
+                <button class="dislike-btn" data-post-id=${post.ID}>dislike</button>
+              </div>
+              <form class="comment_form" method="post">
+                <input name="comment" class="comment" data-post-id=${post.ID} type="text" placeholder="Add your comment" required />
+                <button type="submit" class="send_comment"><img class="sendimg" src="../css/send.png" alt="Send"></button>
+              </form>
             `;
+              
             postsContainer.appendChild(postElement);
           });
 
           offset += limit;
-
-          if (posts.length < limit) {
-            window.removeEventListener("scroll", handleScroll);
-          }
         } catch (error) {
           console.error("Error loading posts:", error);
         } finally {
@@ -105,17 +160,14 @@
         }
       }
 
-      // Function to handle scroll event
       function handleScroll() {
         const scrollPosition = window.scrollY + window.innerHeight;
-        const threshold = document.body.scrollHeight - 500;
+        const threshold = document.body.scrollHeight - 1000;
+
         if (scrollPosition > threshold) {
           loadMorePosts();
         }
       }
-
-      let scrollT = _.throttle(handleScroll, 500);
-      window.addEventListener("scroll", scrollT);
     </script>
   </body>
 </html>

@@ -3,22 +3,20 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"forum/handlers"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// InitializeDB opens a SQLite database and returns the connection.
 func InitializeDB(filepath string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite3", filepath)
 	if err != nil {
 		return nil, err
 	}
+	createTable(db)
 	return db, nil
 }
 
-// Create necessary tables in the database
-func CreateTable(Db *handlers.Handeldb) {
+func createTable(Db *sql.DB) {
 	sqlTable := `
 	CREATE TABLE IF NOT EXISTS users (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,6 +54,7 @@ func CreateTable(Db *handlers.Handeldb) {
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
 		user_id INTEGER NOT NULL, 
 		post_id INTEGER NOT NULL,
+		content TEXT NOT NULL,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY(user_id) REFERENCES users(id),
 		FOREIGN KEY(post_id) REFERENCES posts(id)
@@ -69,7 +68,7 @@ func CreateTable(Db *handlers.Handeldb) {
 		FOREIGN KEY(comment_id) REFERENCES comments(id)
 	);
 	`
-	_, err := Db.DB.Exec(sqlTable)
+	_, err := Db.Exec(sqlTable)
 	if err != nil {
 		fmt.Println("Error creating tables:", err)
 	}
