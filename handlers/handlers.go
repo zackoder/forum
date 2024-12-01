@@ -78,6 +78,7 @@ type Data struct {
 
 type Post struct {
 	ID      int
+	UserName string
 	Title   string
 	Content string
 }

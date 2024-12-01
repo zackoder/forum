@@ -144,7 +144,7 @@ func (db *Handeldb) FetchPosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Query database for posts with pagination
-	query := "SELECT id, title, content FROM posts ORDER BY id DESC LIMIT ? OFFSET ?"
+	query := "SELECT id, user_id, title, content FROM posts ORDER BY id DESC LIMIT ? OFFSET ?"
 	rows, err := db.DB.Query(query, limit, offset)
 	if err != nil {
 		http.Error(w, "Error retrieving posts", http.StatusInternalServerError)
@@ -155,11 +155,13 @@ func (db *Handeldb) FetchPosts(w http.ResponseWriter, r *http.Request) {
 	var posts []Post
 	for rows.Next() {
 		var post Post
-		// var user_id int
-		if err := rows.Scan(&post.ID, /* &user_id, */ &post.Title, &post.Content); err != nil {
+		var user_id int
+		if err := rows.Scan(&post.ID, &user_id, &post.Title, &post.Content); err != nil {
 			http.Error(w, "Error scanning posts", http.StatusInternalServerError)
 			return
 		}
+		getuserName := "SELECT username FROM users WHERE id = ?"
+		db.DB.QueryRow(getuserName, user_id).Scan(&post.UserName)
 		posts = append(posts, post)
 	}
 
