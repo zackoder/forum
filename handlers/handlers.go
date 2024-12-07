@@ -73,7 +73,6 @@ func (db *Handeldb) Logout(w http.ResponseWriter, r *http.Request) {
 type Data struct {
 	Logdin bool
 	Name   string
-	Posts  []Post
 }
 
 type Post struct {
@@ -84,11 +83,13 @@ type Post struct {
 }
 
 func (db *Handeldb) HomePage(w http.ResponseWriter, r *http.Request) {
-	tmp, err := template.ParseFiles("./templates/home.html")
+	tmp, err := template.ParseGlob("./templates/*.html")
 	if err != nil {
+		fmt.Println(err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
+
 	if r.URL.Path != "/" {
 		http.Error(w, "Not Found", 404)
 		return
@@ -112,31 +113,15 @@ func (db *Handeldb) HomePage(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-
-	query := "SELECT id, title, content FROM posts ORDER BY id DESC LIMIT 20"
-	row, err := db.DB.Query(query)
-	if err != nil {
-		http.Error(w, "Error retrieving posts", http.StatusInternalServerError)
-		return
-	}
-
-	defer row.Close()
-	var posts []Post
-	for row.Next() {
-		var id int
-		var title, content string
-		if err := row.Scan(&id, &title, &content); err != nil {
-			return
-		}
-		posts = append(posts, Post{ID: id, Title: title, Content: content})
-	}
-
+	
 	data := Data{
 		Logdin: loggedIn,
 		Name:   name,
-		Posts:  posts,
 	}
-	tmp.Execute(w, data)
+	err = tmp.ExecuteTemplate(w, "home.html", data)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func (db *Handeldb) CreatePostPage(w http.ResponseWriter, r *http.Request) {
@@ -274,7 +259,7 @@ func (db *Handeldb) Addcomment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	content := r.FormValue("comment")
-	fmt.Println(content)
+	postId := r.FormValue("post_id")
 	err = db.DB.QueryRow(getuserId, cookie.Value).Scan(&userId)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -283,7 +268,7 @@ func (db *Handeldb) Addcomment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	insetComment := "INSERT INTO comments (user_id, post_id, content) VALUES (?,?,?)"
-	_, err = db.DB.Exec(insetComment, userId, 5, content)
+	_, err = db.DB.Exec(insetComment, userId, postId, content)
 	if err != nil {
 		fmt.Println(err.Error())
 	}

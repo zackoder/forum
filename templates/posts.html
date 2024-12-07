@@ -1,0 +1,154 @@
+{{ define "posts" }}
+
+<section id="posts-container"></section>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const postsContainer = document.getElementById("posts-container");
+
+    postsContainer.addEventListener("click", function (event) {
+      if (event.target.classList.contains("like-btn")) {
+        const postId = event.target.getAttribute("data-post-id");
+        handleLike(postId, true);
+      } else if (event.target.classList.contains("dislike-btn")) {
+        const postId = event.target.getAttribute("data-post-id");
+        handleLike(postId, false);
+      }
+    });
+
+    postsContainer.addEventListener("submit", function (event) {
+      if (event.target.classList.contains("comment_form")) {
+        event.preventDefault();
+
+        const form = event.target;
+        const postId = form
+          .querySelector(".comment")
+          .getAttribute("data-post-id");
+        const commentText = form.querySelector(".comment").value.trim();
+
+        if (commentText === "") {
+          alert("Comment cannot be empty.");
+          return;
+        }
+
+        handleComment(postId, commentText);
+        form.reset();
+      }
+    });
+
+    loadMorePosts();
+    window.addEventListener("scroll", _.throttle(handleScroll, 500));
+  });
+
+  function handleLike(postId, like) {
+    fetch("/like-post", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: `post_id=${postId}&like=${like}`,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Like/Dislike updated:", data);
+      })
+      .catch((error) => console.error("Error updating like/dislike:", error));
+  }
+
+  function handleComment(postId, comment) {
+    fetch("/comments", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: `post_id=${postId}&comment=${comment}`,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.success) {
+          alert("Comment added successfully!");
+        } else {
+          alert("Failed to add comment.");
+        }
+      })
+      .catch((error) => console.error("Error submitting comment:", error));
+  }
+
+  let home = "home";
+  let profile = document.getElementById("profile");
+  profile.addEventListener("click", () => {
+    loadMorePosts(profile);
+  });
+
+  let offset = 0;
+  const limit = 20;
+  let loading = false;
+
+  async function loadMorePosts(name = "home") {
+    console.log(name);
+
+    if (loading) return;
+    loading = true;
+
+    try {
+      console.log("hello");
+      const response = await fetch(
+        `/fetch-posts?offset=${offset}&name=${name}`
+      );
+
+      const posts = await response.json();
+      if (!posts || posts.length === 0) return;
+
+      const postsContainer = document.getElementById("posts-container");
+      posts.forEach((post) => {
+        console.log(post);
+        const postElement = document.createElement("div");
+        postElement.className = "post-container";
+
+        postElement.innerHTML = `
+            <h2 class="poster"><img src="./466006304_871124095226532_8631138819273739648_n.jpg"> ${post.UserName} hello</h2>
+            <div class="pc">
+              <h3 class="title">${post.Title}</h3>
+              <p class="content">${post.Content}</p>
+              <div class="like-dislike-container">
+                <button class="like-btn" data-post-id=${post.ID}>like</button>
+                <button class="dislike-btn" data-post-id=${post.ID}>dislike</button>
+              </div>
+              <form class="comment_form" method="post">
+                <input name="comment" class="comment" data-post-id="${post.ID}" type="text" placeholder="Add your comment" required />
+                <button type="submit" class="send_comment"><img class="sendimg" src="../css/send.png" alt="Send"></button>
+              </form>
+            </div>
+            `;
+        postsContainer.appendChild(postElement);
+      });
+
+      offset += limit;
+    } catch (error) {
+      console.error("Error loading posts:", error);
+    } finally {
+      loading = false;
+    }
+  }
+
+  function handleScroll() {
+    const scrollPosition = window.scrollY + window.innerHeight;
+    const threshold = document.body.scrollHeight - 1000;
+
+    if (scrollPosition > threshold) {
+      loadMorePosts();
+    }
+  }
+  setInterval();
+</script>
+{{ end }}

@@ -45,7 +45,7 @@ func createTable(Db *sql.DB) {
 
 	CREATE TABLE IF NOT EXISTS sessions (
 		token TEXT PRIMARY KEY,
-		user_id INTEGER NOT NULL,
+		user_id INTEGER NOT NULL UNIQUE,
 		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY(user_id) REFERENCES users(id)
 	);

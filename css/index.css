@@ -5,27 +5,29 @@
 }
 
 body {
-  background-color: gray;
+  background-color: rgba(217, 217, 217, 1);
 }
 
 header {
-  height: 60px;
   width: 100%;
   display: flex;
   justify-content: space-between;
+  background-color: #efa25a;
 }
 .logo {
   padding: 15px 0 0 25px;
   font-size: 2rem;
+  margin-bottom: 20px;
 }
 
 .logolink {
   text-decoration: none;
-  color: white;
+  color: rgb(173, 133, 248);
+  transition: color 200ms ease;
 }
 
-logolink:hover {
-  color: black;
+.logolink:hover {
+  color: rgb(66, 158, 200);
 }
 
 .navbar {
@@ -48,16 +50,31 @@ logolink:hover {
 
 .post-container {
   width: 60%;
-  height: 450px;
+  height: auto;
   display: flex;
   flex-direction: column;
-  margin: 20px auto;
+  margin: 40px auto;
+  background-color: white;
+  padding: 10px 10px 30px 10px;
+  border-radius: 8px;
 }
 
 .post-container .pc {
   border: 1px black solid;
   border-radius: 8px;
   padding: 10px;
+  margin-bottom: 10px;
+}
+
+.poster {
+  padding: 10px 0 15px 10px;
+  color: rgb(5, 5, 5);
+}
+
+.poster img {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
 }
 
 .like-dislike-container {
@@ -74,6 +91,15 @@ logolink:hover {
   cursor: pointer;
   padding: 5px;
   border-radius: 8px;
+  transition: background-color 200ms ease;
+}
+
+.blue {
+  background-color: rgb(66, 158, 200);
+}
+
+.red {
+  background-color: rgb(236, 79, 79);
 }
 
 .content {
