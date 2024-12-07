@@ -15,7 +15,6 @@
         handleLike(postId, false);
       }
     });
-
     postsContainer.addEventListener("submit", function (event) {
       if (event.target.classList.contains("comment_form")) {
         event.preventDefault();
@@ -116,7 +115,7 @@
         postElement.className = "post-container";
 
         postElement.innerHTML = `
-            <h2 class="poster"><img src="./466006304_871124095226532_8631138819273739648_n.jpg"> ${post.UserName} hello</h2>
+            <h2 class="poster"><img src="./466006304_871124095226532_8631138819273739648_n.jpg"> ${post.UserName}</h2>
             <div class="pc">
               <h3 class="title">${post.Title}</h3>
               <p class="content">${post.Content}</p>

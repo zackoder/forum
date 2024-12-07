@@ -21,7 +21,9 @@
     </header>
 
     {{ if .Logdin }}
-    <h1>Welcome, {{.Name}}</h1>
+    <div class="lay-out"></div>
+    <h1 class="greeting">Welcome, {{.Name}}</h1>
+    <button class="show-postForm">hi</button>
     <form class="postForm" action="/posts" method="post">
       <label class="create_Post" for="post">Create Post:</label>
       <input
@@ -37,5 +39,6 @@
       <button type="submit">Submit</button>
     </form>
     {{end}} {{ template "posts" }}
+    
   </body>
 </html>

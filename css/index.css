@@ -1,3 +1,12 @@
+:root {
+  --primary-color: #3498db;
+  --secondary-color: #f9bf73;
+  --background-color: #f4f4f9;
+  --text-color: #333333;
+  --link-color: #3498db;
+  --hover-color: #66addc;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -5,15 +14,17 @@
 }
 
 body {
-  background-color: rgba(217, 217, 217, 1);
+  background-color: var(--background-color);
 }
 
 header {
+  z-index: 3;
   width: 100%;
   display: flex;
   justify-content: space-between;
-  background-color: #efa25a;
+  background-color: var(--secondary-color);
 }
+
 .logo {
   padding: 15px 0 0 25px;
   font-size: 2rem;
@@ -22,12 +33,12 @@ header {
 
 .logolink {
   text-decoration: none;
-  color: rgb(173, 133, 248);
+  color: var(--text-color);
   transition: color 200ms ease;
 }
 
 .logolink:hover {
-  color: rgb(66, 158, 200);
+  color: var(--hover-color);
 }
 
 .navbar {
@@ -44,11 +55,18 @@ header {
   color: white;
 }
 
+.greeting {
+  width: 50%;
+  text-align: center;
+  padding: 50px 0;
+}
+
 .title {
   font-size: 20px;
 }
 
 .post-container {
+  box-shadow: 0 0 10px 2px rgb(65, 65, 65);
   width: 60%;
   height: auto;
   display: flex;
@@ -94,14 +112,6 @@ header {
   transition: background-color 200ms ease;
 }
 
-.blue {
-  background-color: rgb(66, 158, 200);
-}
-
-.red {
-  background-color: rgb(236, 79, 79);
-}
-
 .content {
   height: 300px;
   padding: 10px 0 0 10px;
@@ -140,10 +150,9 @@ header {
 }
 
 .postForm {
-  /* display: none; */
+  display: none;
   height: 300px;
   width: 600px;
-  display: flex;
   flex-direction: column;
   margin: auto;
   gap: 20px;
@@ -151,7 +160,24 @@ header {
   padding: 20px;
   z-index: 10;
   background-color: white;
+  box-shadow: 0 0 10px 5px gray;
   border-radius: 8px;
+  border: 1px solid black;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.show-postForm
+
+.lay-out {
+  display: none;
+  position: absolute;
+  height: 100vh;
+  width: 100%;
+  background-color: rgba(67, 67, 67, 0.527);
+  z-index: 5;
 }
 
 .title_inpt {
