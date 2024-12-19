@@ -41,7 +41,7 @@ func main() {
 		}
 		css.ServeHTTP(w, r)
 	})
-	port = ":8080"
+	port := ":8080"
 	fmt.Printf("http://localhost%s\n", port)
 	fmt.Println(http.ListenAndServe(port, nil))
 }
