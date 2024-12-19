@@ -1,10 +1,12 @@
 :root {
-  --primary-color: #3498db;
-  --secondary-color: #f9bf73;
-  --background-color: #f4f4f9;
-  --text-color: #333333;
-  --link-color: #3498db;
-  --hover-color: #66addc;
+  --primary-color: #1e90ff;
+  --secondary-color: #ff8c94;
+  --background-color: #e1e2e3;
+  --text-color: #212121;
+  --link-color: #1e88e5;
+  --like-hover: #64b5f6;
+  --dislike-hover: #f66764;
+  --post-background: rgba(244, 244, 244, 0.8);
 }
 
 * {
@@ -15,78 +17,117 @@
 
 body {
   background-color: var(--background-color);
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
 }
 
 header {
-  z-index: 3;
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+  z-index: 3;
+  background-color: var(--secondary-color);
   display: flex;
   justify-content: space-between;
-  background-color: var(--secondary-color);
+  align-items: center;
+  padding: 10px 20px;
 }
 
 .logo {
-  padding: 15px 0 0 25px;
   font-size: 2rem;
-  margin-bottom: 20px;
+  margin: 0;
+  color: var(--text-color);
 }
 
 .logolink {
   text-decoration: none;
   color: var(--text-color);
-  transition: color 200ms ease;
+  transition: color 200ms ease-in-out;
 }
 
 .logolink:hover {
-  color: var(--hover-color);
+  color: var(--link-color);
 }
 
 .navbar {
   list-style: none;
   display: flex;
-  width: 200px;
-  align-items: center;
-  justify-content: space-around;
+  gap: 20px;
 }
 
 .navbar .navlinks {
   text-decoration: none;
   font-size: 1.2rem;
   color: white;
+  transition: color 200ms ease-in-out;
+}
+
+.navbar .navlinks:hover {
+  color: var(--link-color);
 }
 
 .greeting {
-  width: 50%;
   text-align: center;
-  padding: 50px 0;
+  padding: 150px 20px 25px;
+  font-size: 1.5rem;
 }
 
 .title {
+  align-self: self-start;
+  padding-left: 50px;
+  text-wrap: wrap;
   font-size: 20px;
 }
 
 .post-container {
-  box-shadow: 0 0 10px 2px rgb(65, 65, 65);
+  background-color: var(--post-background);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   width: 60%;
-  height: auto;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
-  margin: 40px auto;
-  background-color: white;
-  padding: 10px 10px 30px 10px;
-  border-radius: 8px;
 }
 
 .post-container .pc {
-  border: 1px black solid;
+  position: relative;
   border-radius: 8px;
-  padding: 10px;
+  padding: 30px;
   margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.post-container .pc::before,
+.post-container .pc::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  border-top: 1px solid black;
+}
+
+.post-container .pc::before {
+  top: 0;
+}
+
+.post-container .pc::after {
+  bottom: 0;
 }
 
 .poster {
-  padding: 10px 0 15px 10px;
-  color: rgb(5, 5, 5);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  color: var(--text-color);
 }
 
 .poster img {
@@ -95,43 +136,102 @@ header {
   border-radius: 50%;
 }
 
+.poster span {
+  position: absolute;
+  top: 25%;
+  left: 8%;
+}
+
 .like-dislike-container {
   width: 100%;
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-start;
+  gap: 10px;
 }
 
 .like-btn,
 .dislike-btn {
-  display: inline;
   font-size: 18px;
-  width: 48%;
-  cursor: pointer;
-  padding: 5px;
+  width: 35px;
+  padding-top: 5px;
   border-radius: 8px;
-  transition: background-color 200ms ease;
+  border: none;
+  cursor: pointer;
+  background-color: transparent;
+  transition: background-color 200ms ease-in-out;
+}
+
+.like-btn:hover {
+  background-color: var(--like-hover);
+}
+
+.dislike-btn:hover {
+  background-color: var(--dislike-hover);
+}
+
+.liked {
+  background-color: var(--like-hover);
+}
+
+.disliked {
+  background-color: var(--dislike-hover);
+}
+
+span {
+  margin-left: 15px;
+  position: absolute;
+  top: 25px;
 }
 
 .content {
-  height: 300px;
-  padding: 10px 0 0 10px;
+  width: 100%;
+  height: auto;
+  padding: 10px;
 }
 
+.see_comments {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  display: block;
+}
+
+/* .see_comments::before,
+.see_comments::after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 50%;
+  width: 300%;
+  height: 1px; 
+  background-color: #292929; 
+  transform: translateY(-50%);
+}
+
+.see_comments::before {
+  left: -310%;
+}
+
+.see_comments::after {
+  right: -310%;
+} */
+
 .comment_form {
+  width: 90%;
   margin-top: 10px;
   display: flex;
-  gap: 20px;
   align-items: center;
-  flex-direction: row;
-  width: 100%;
+  gap: 10px;
   padding-left: 10px;
 }
 
 .comment {
-  width: 90%;
+  flex: 1;
   height: 30px;
-  padding-left: 5px;
+  padding: 5px;
   border-radius: 8px;
+  border: 1px solid #ccc;
 }
 
 .send_comment {
@@ -139,61 +239,140 @@ header {
   height: 40px;
   border-radius: 50%;
   border: none;
+  cursor: pointer;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 200ms ease-in-out;
+}
+
+.send_comment:hover {
+  background-color: #6287d577;
 }
 
 .sendimg {
   background-color: transparent;
-  width: 25px;
-  height: 25px;
-  margin-left: -4px;
-  margin-bottom: -4px;
+  width: 20px;
+  height: 20px;
+  z-index: 2;
 }
 
 .postForm {
   display: none;
-  height: 300px;
-  width: 600px;
-  flex-direction: column;
-  margin: auto;
-  gap: 20px;
-  border: none;
-  padding: 20px;
-  z-index: 10;
-  background-color: white;
-  box-shadow: 0 0 10px 5px gray;
-  border-radius: 8px;
-  border: 1px solid black;
-  position: absolute;
-  left: 50%;
+  position: fixed;
   top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
+  width: 600px;
+  padding: 20px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  z-index: 10;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.show-postForm
+.show-postForm {
+  background: none;
+  border: none;
+  position: fixed;
+  top: 120px;
+  right: 20px;
+  cursor: pointer;
+}
 
 .lay-out {
   display: none;
-  position: absolute;
-  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  background-color: rgba(67, 67, 67, 0.527);
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
   z-index: 5;
 }
 
 .title_inpt {
   height: 30px;
-  padding: 8px;
+  padding: 5px;
   border-radius: 8px;
+  border: 1px solid #ccc;
 }
+
 .create_Post {
   text-align: center;
   font-size: 22px;
   letter-spacing: 3px;
+  font-weight: bold;
 }
 
 .post_contant {
   height: 90px;
+  padding: 10px;
   border-radius: 8px;
-  padding: 8px;
+  border: 1px solid #ccc;
   resize: none;
+}
+
+@media (max-width: 1024px) {
+  .post-container {
+    width: 80%;
+  }
+
+  .greeting {
+    padding: 120px 20px 25px;
+  }
+
+  .postForm {
+    width: 90%;
+  }
+}
+
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .navbar {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .post-container {
+    width: 90%;
+  }
+
+  .greeting {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    font-size: 1.5rem;
+  }
+
+  .greeting {
+    padding: 100px 10px;
+    font-size: 1rem;
+  }
+
+  .post-container {
+    width: 95%;
+  }
+
+  .comment {
+    height: 25px;
+    font-size: 0.9rem;
+  }
+
+  .like-btn,
+  .dislike-btn {
+    font-size: 16px;
+    width: 50px;
+  }
 }

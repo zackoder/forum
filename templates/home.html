@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="/css/index.css" />
     <title>Home Page</title>
   </head>
   <body>
@@ -11,7 +11,7 @@
       <p class="logo"><a href="/" class="logolink">Forum</a></p>
       <ul class="navbar">
         {{if .Logdin }}
-        <li><a class="navlinks" id="profile" href="/profile">Profile</a></li>
+        <li><a class="navlinks" id="profile" href="/">Profile</a></li>
         <li><a class="navlinks" href="/logout">Log Out</a></li>
         {{else}}
         <li><a class="navlinks" href="/login">Log In</a></li>
@@ -23,7 +23,7 @@
     {{ if .Logdin }}
     <div class="lay-out"></div>
     <h1 class="greeting">Welcome, {{.Name}}</h1>
-    <button class="show-postForm">hi</button>
+    <button class="show-postForm"><img src="/css/add.png" /></button>
     <form class="postForm" action="/posts" method="post">
       <label class="create_Post" for="post">Create Post:</label>
       <input
@@ -36,9 +36,24 @@
       />
       <textarea class="post_contant" name="content" id="content"></textarea>
       <input name="filename" type="file" />
+      <div class="checkbox-container">
+        <label class="checkbox-wrapper">
+          <input type="checkbox" class="checkbox-input" />
+          <span class="custom-checkbox">developpment</span>
+        </label>
+
+        <label class="checkbox-wrapper">
+          <input type="checkbox" class="checkbox-input" />
+          <span class="custom-checkbox"></span>
+        </label>
+
+        <label class="checkbox-wrapper">
+          <input type="checkbox" class="checkbox-input" />
+          <span class="custom-checkbox"></span>
+        </label>
+      </div>
       <button type="submit">Submit</button>
     </form>
     {{end}} {{ template "posts" }}
-    
   </body>
 </html>

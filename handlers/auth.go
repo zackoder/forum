@@ -89,7 +89,6 @@ func (db *Handeldb) LoginPage(w http.ResponseWriter, r *http.Request) {
 		var token string
 		err = db.DB.QueryRow("SELECT token FROM sessions WHERE user_id = ?", userId).Scan(&token)
 		if err == nil {
-			fmt.Println(token)
 			sessionCookie := &http.Cookie{
 				Name:     "session_token",
 				Value:    token,
@@ -163,7 +162,7 @@ func (db *Handeldb) FetchPosts(w http.ResponseWriter, r *http.Request) {
 	var posts []Post
 
 	if name == "home" || name == "" {
-		query := "SELECT id, user_id, title, content FROM posts ORDER BY id DESC LIMIT ? OFFSET ?"
+		query := "SELECT id, (SELECT username FROM users WHERE id = user_id), title, content FROM posts ORDER BY id DESC LIMIT ? OFFSET ?"
 		rows, err := db.DB.Query(query, limit, offset)
 		if err != nil {
 			http.Error(w, "Error retrieving posts", http.StatusInternalServerError)
@@ -173,13 +172,13 @@ func (db *Handeldb) FetchPosts(w http.ResponseWriter, r *http.Request) {
 
 		for rows.Next() {
 			var post Post
-			var user_id int
-			if err := rows.Scan(&post.ID, &user_id, &post.Title, &post.Content); err != nil {
+			// var user_id int
+			if err := rows.Scan(&post.ID, &post.UserName, &post.Title, &post.Content); err != nil {
 				http.Error(w, "Error scanning posts", http.StatusInternalServerError)
 				return
 			}
-			getuserName := "SELECT username FROM users WHERE id = ?"
-			db.DB.QueryRow(getuserName, user_id).Scan(&post.UserName)
+			// getuserName := "SELECT username FROM users WHERE id = ?"
+			// db.DB.QueryRow(getuserName, user_id).Scan(&post.UserName)
 			posts = append(posts, post)
 		}
 
@@ -187,6 +186,7 @@ func (db *Handeldb) FetchPosts(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("session_token")
 		if err != nil {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
 		}
 
 		var id int
@@ -195,7 +195,9 @@ func (db *Handeldb) FetchPosts(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err.Error())
 		}
 
-		query := "SELECT id, title, content FROM posts WHERE user_id = ?"
+		fmt.Println(id)
+
+		query := "SELECT id,(SELECT username FROM users WHERE id = user_id), title, content FROM posts WHERE user_id = ?"
 		row, err := db.DB.Query(query, id)
 		if err != nil {
 			http.Error(w, "couldn't retreve data from database", http.StatusInternalServerError)
@@ -204,14 +206,13 @@ func (db *Handeldb) FetchPosts(w http.ResponseWriter, r *http.Request) {
 
 		defer row.Close()
 		for row.Next() {
-			var post_id int
-			var title, content string
-			if err := row.Scan(&post_id, &title, &content); err != nil {
+			var post Post
+			if err := row.Scan(&post.ID, &post.UserName, &post.Title, &post.Content); err != nil {
 				fmt.Println(err)
 				http.Error(w, "Error during iteration over rows", http.StatusInternalServerError)
 				return
 			}
-			posts = append(posts, Post{ID: post_id, Title: title, Content: content})
+			posts = append(posts, post)
 		}
 
 		if err = row.Err(); err != nil {
@@ -225,7 +226,6 @@ func (db *Handeldb) FetchPosts(w http.ResponseWriter, r *http.Request) {
 }
 
 func (db *Handeldb) Profile(w http.ResponseWriter, r *http.Request) {
-
 	if r.Method != http.MethodGet {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
@@ -237,8 +237,6 @@ func (db *Handeldb) Profile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Println("profile")
 
 	err = tmp.ExecuteTemplate(w, "profile.html", nil)
 	if err != nil {

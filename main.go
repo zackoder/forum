@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+	port := os.Getenv("PORT")
 	db, err := database.InitializeDB("./my_database.db")
 	if err != nil {
 		fmt.Println(err)
@@ -41,7 +42,6 @@ func main() {
 		}
 		css.ServeHTTP(w, r)
 	})
-	port := ":8080"
 	fmt.Printf("http://localhost%s\n", port)
 	fmt.Println(http.ListenAndServe(port, nil))
 }

@@ -247,7 +247,8 @@ func (db *Handeldb) Addcomment(w http.ResponseWriter, r *http.Request) {
 
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		fmt.Println("Unauthorized")
+		http.Redirect(w, r, "/login", http.StatusUnauthorized)
 		return
 	}
 
@@ -257,9 +258,9 @@ func (db *Handeldb) Addcomment(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		fmt.Println(err)
 	}
-
 	content := r.FormValue("comment")
 	postId := r.FormValue("post_id")
+	fmt.Println(postId)
 	err = db.DB.QueryRow(getuserId, cookie.Value).Scan(&userId)
 	if err != nil {
 		fmt.Println(err.Error())
