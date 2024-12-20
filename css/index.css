@@ -79,10 +79,12 @@ header {
 }
 
 .title {
+  width: 100%;
   align-self: self-start;
   padding-left: 50px;
   text-wrap: wrap;
   font-size: 20px;
+  text-wrap: wrap;
 }
 
 .post-container {
