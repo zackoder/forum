@@ -22,15 +22,16 @@ func main() {
 	_ = []string{"posts", "likes_dislikes", "sessions", "comments", "comment_likes"}
 
 	http.HandleFunc("/", Db.HomePage)
-	http.HandleFunc("/logup", Db.RegisterPage)
-	http.HandleFunc("/login", Db.LoginPage)
+	http.HandleFunc("/signup", Db.RegisterPage)
+	http.HandleFunc("/signin", Db.LoginPage)
 	http.HandleFunc("/create-post", Db.CreatePostPage)
 	http.HandleFunc("/like-post", Db.LikePost)
 	http.HandleFunc("/logout", Db.Logout)
-	http.HandleFunc("/profile", Db.Profile)
+	http.HandleFunc("/profile", Db.ProfileData)
 	http.HandleFunc("/posts", Db.AddPosts)
 	http.HandleFunc("/fetch-posts", Db.FetchPosts)
 	http.HandleFunc("/comments", Db.Addcomment)
+	http.HandleFunc("/{UserName}", Db.Profile)
 
 	css := http.StripPrefix("/css/", http.FileServer(http.Dir("./css")))
 	http.HandleFunc("/css/", func(w http.ResponseWriter, r *http.Request) {
@@ -40,6 +41,15 @@ func main() {
 			return
 		}
 		css.ServeHTTP(w, r)
+	})
+	js := http.StripPrefix("/js/", http.FileServer(http.Dir("./js")))
+	http.HandleFunc("/js/", func(w http.ResponseWriter, r *http.Request) {
+		_, err := os.ReadFile("." + r.URL.Path)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			return
+		}
+		js.ServeHTTP(w, r)
 	})
 	port := ":8080"
 	fmt.Printf("http://localhost%s\n", port)

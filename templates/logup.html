@@ -1,16 +1,24 @@
 <!DOCTYPE html>
 <html>
-<body>
-    <h1>Log up</h1>
-    <form method="POST" action="/logup">
-        <label for="email">Email:</label>
-        <input type="email" name="email" required><br>
-        <label for="username">Username:</label>
-        <input type="text" name="username" required><br>
-        <label for="password">Password:</label>
-        <input type="password" name="password" required><br>
+  <head>
+    <link rel="stylesheet" href="/css/global.css" />
+    <link rel="stylesheet" href="/css/navbar.css" />
+    <link rel="stylesheet" href="/css/log.css" />
+  </head>
+
+  <body>
+    {{template "navbar" .}}
+    <div class="formcontainer">
+      <h1>Sign up</h1>
+      <form class="logform" method="POST" action="/signup">
+        <label class="lbl" for="email">Email:</label>
+        <input class="imp" type="email" name="email" required /><br />
+        <label class="lbl" for="username">Username:</label>
+        <input class="imp" type="text" name="username" required /><br />
+        <label class="lbl" for="password">Password:</label>
+        <input class="imp" type="password" name="password" required /><br />
         <button type="submit">Register</button>
-    </form>
-    <a href="/login">Login here</a>
-</body>
+      </form>
+    </div>
+  </body>
 </html>

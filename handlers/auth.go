@@ -21,6 +21,12 @@ type Handeldb struct {
 }
 
 // User registration
+type Userinfo struct {
+	Logdin bool
+}
+
+var userinfo = Userinfo{Logdin: false}
+
 func (db *Handeldb) RegisterPage(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		email := r.FormValue("email")
@@ -67,8 +73,14 @@ func (db *Handeldb) RegisterPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmp, _ := template.ParseFiles("./templates/logup.html")
-	tmp.Execute(w, nil)
+	tmp, err := template.ParseGlob("./templates/*.html")
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = tmp.ExecuteTemplate(w, "logup.html", userinfo)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 // User login
@@ -125,8 +137,8 @@ func (db *Handeldb) LoginPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmp, _ := template.ParseFiles("./templates/login.html")
-	tmp.Execute(w, nil)
+	tmp, _ := template.ParseGlob("./templates/*.html")
+	tmp.ExecuteTemplate(w, "login.html", userinfo)
 }
 
 // Generate session token
@@ -151,7 +163,6 @@ func (db *Handeldb) FetchPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	offsetStr := r.URL.Query().Get("offset")
-	name := r.URL.Query().Get("name")
 	limit := 20
 
 	offset, err := strconv.Atoi(offsetStr)
@@ -161,87 +172,67 @@ func (db *Handeldb) FetchPosts(w http.ResponseWriter, r *http.Request) {
 
 	var posts []Post
 
-	if name == "home" || name == "" {
-		query := "SELECT id, (SELECT username FROM users WHERE id = user_id), title, content FROM posts ORDER BY id DESC LIMIT ? OFFSET ?"
-		rows, err := db.DB.Query(query, limit, offset)
-		if err != nil {
-			http.Error(w, "Error retrieving posts", http.StatusInternalServerError)
+	query := "SELECT id, (SELECT username FROM users WHERE id = user_id), title, content FROM posts ORDER BY id DESC LIMIT ? OFFSET ?"
+	rows, err := db.DB.Query(query, limit, offset)
+	if err != nil {
+		http.Error(w, "Error retrieving posts", http.StatusInternalServerError)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var post Post
+		// var user_id int
+		if err := rows.Scan(&post.ID, &post.UserName, &post.Title, &post.Content); err != nil {
+			http.Error(w, "Error scanning posts", http.StatusInternalServerError)
 			return
 		}
-		defer rows.Close()
-
-		for rows.Next() {
-			var post Post
-			// var user_id int
-			if err := rows.Scan(&post.ID, &post.UserName, &post.Title, &post.Content); err != nil {
-				http.Error(w, "Error scanning posts", http.StatusInternalServerError)
-				return
-			}
-			// getuserName := "SELECT username FROM users WHERE id = ?"
-			// db.DB.QueryRow(getuserName, user_id).Scan(&post.UserName)
-			posts = append(posts, post)
-		}
-
-	} else if name == "profile" {
-		cookie, err := r.Cookie("session_token")
-		if err != nil {
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-			return
-		}
-
-		var id int
-		err = db.DB.QueryRow("SELECT user_id FROM sessions WHERE token = ?", cookie.Value).Scan(&id)
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-
-		fmt.Println(id)
-
-		query := "SELECT id,(SELECT username FROM users WHERE id = user_id), title, content FROM posts WHERE user_id = ?"
-		row, err := db.DB.Query(query, id)
-		if err != nil {
-			http.Error(w, "couldn't retreve data from database", http.StatusInternalServerError)
-			return
-		}
-
-		defer row.Close()
-		for row.Next() {
-			var post Post
-			if err := row.Scan(&post.ID, &post.UserName, &post.Title, &post.Content); err != nil {
-				fmt.Println(err)
-				http.Error(w, "Error during iteration over rows", http.StatusInternalServerError)
-				return
-			}
-			posts = append(posts, post)
-		}
-
-		if err = row.Err(); err != nil {
-			http.Error(w, "Error during iteration over rows", http.StatusInternalServerError)
-			return
-		}
+		posts = append(posts, post)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(posts)
 }
 
-func (db *Handeldb) Profile(w http.ResponseWriter, r *http.Request) {
+func (db *Handeldb) ProfileData(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
-
-	tmp, err := template.ParseGlob("templates/*.html")
+	cookie, err := r.Cookie("session_token")
 	if err != nil {
-		fmt.Println(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
-	err = tmp.ExecuteTemplate(w, "profile.html", nil)
+	var id int
+	err = db.DB.QueryRow("SELECT user_id FROM sessions WHERE token = ?", cookie.Value).Scan(&id)
 	if err != nil {
-		fmt.Println(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		fmt.Println(err.Error())
+	}
+
+	query := "SELECT id,(SELECT username FROM users WHERE id = user_id), title, content FROM posts WHERE user_id = ?"
+	row, err := db.DB.Query(query, id)
+	if err != nil {
+		http.Error(w, "couldn't retreve data from database", http.StatusInternalServerError)
 		return
 	}
+	var posts []Post
+	defer row.Close()
+	for row.Next() {
+		var post Post
+		if err := row.Scan(&post.ID, &post.UserName, &post.Title, &post.Content); err != nil {
+			fmt.Println(err)
+			http.Error(w, "Error during iteration over rows", http.StatusInternalServerError)
+			return
+		}
+		posts = append(posts, post)
+	}
+
+	if err = row.Err(); err != nil {
+		http.Error(w, "Error during iteration over rows", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("content-type", "application/json")
+	json.NewEncoder(w).Encode(posts)
 }

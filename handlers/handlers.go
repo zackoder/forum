@@ -71,56 +71,65 @@ func (db *Handeldb) Logout(w http.ResponseWriter, r *http.Request) {
 }
 
 type Data struct {
-	Logdin bool
-	Name   string
+	Logdin   bool
+	UserName string
 }
 
 type Post struct {
-	ID      int
+	ID       int
 	UserName string
-	Title   string
-	Content string
+	Title    string
+	Content  string
 }
 
 func (db *Handeldb) HomePage(w http.ResponseWriter, r *http.Request) {
-	tmp, err := template.ParseGlob("./templates/*.html")
+	// Parse templates
+	tmp, err := template.ParseFiles("./templates/home.html", "./templates/navbar.html", "./templates/posts.html")
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Template parsing error:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
+	// Check URL path
 	if r.URL.Path != "/" {
 		http.Error(w, "Not Found", 404)
 		return
 	}
 
+	// Validate session
 	cookie, err := r.Cookie("session_token")
 	loggedIn := true
 	name := ""
 	if err != nil {
+		fmt.Println("Cookie error:", err)
 		loggedIn = false
 	} else {
 		var userID int
 		err := db.DB.QueryRow("SELECT user_id FROM sessions WHERE token = ?", cookie.Value).Scan(&userID)
 		if err != nil {
+			fmt.Println("Session validation failed:", err)
 			loggedIn = false
 		} else {
 			query := "SELECT username FROM users WHERE id = ?"
 			err = db.DB.QueryRow(query, userID).Scan(&name)
 			if err != nil {
-				fmt.Println("could not get user name", err)
+				fmt.Println("Could not get user name:", err)
 			}
 		}
 	}
-	
+
+	// Pass data to template
 	data := Data{
-		Logdin: loggedIn,
-		Name:   name,
+		Logdin:   loggedIn,
+		UserName: name,
 	}
+
+	// Render template
 	err = tmp.ExecuteTemplate(w, "home.html", data)
 	if err != nil {
-		fmt.Println(err)
+		fmt.Println("Template execution error:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
 }
 
@@ -158,6 +167,7 @@ func (db *Handeldb) CreatePostPage(w http.ResponseWriter, r *http.Request) {
 /* like posts handler */
 
 func (db *Handeldb) LikePost(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("action")
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
@@ -170,6 +180,7 @@ func (db *Handeldb) LikePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	postID := r.FormValue("post_id")
+	fmt.Println(postID, r.FormValue("like"))
 	var like bool
 	if r.FormValue("like") == "true" {
 		like = true
@@ -274,4 +285,35 @@ func (db *Handeldb) Addcomment(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err.Error())
 	}
 
+}
+
+func (db *Handeldb) Profile(w http.ResponseWriter, r *http.Request) {
+	
+	cookie, err := r.Cookie("session_token")
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
+	if r.Method != http.MethodGet {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
+
+	tmp, err := template.ParseGlob("./templates/*.html")
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	var data Data
+	data.Logdin = true
+	query := "SELECT username FROM users WHERE id = (SELECT user_id FROM sessions WHERE token = ?)"
+	err = db.DB.QueryRow(query, cookie.Value).Scan(&data.UserName)
+	if err != nil {
+		fmt.Println(err)
+	}
+	tmp.ExecuteTemplate(w, "profile.html", data)
 }

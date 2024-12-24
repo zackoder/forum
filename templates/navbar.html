@@ -1,0 +1,14 @@
+{{ define "navbar" }}
+<header>
+  <p class="logo"><a href="/" class="logolink">Forum</a></p>
+  <ul class="navbar">
+    {{if .Logdin}}
+    <li><a class="navlinks" id="profile" href="/{{.UserName}}">Profile</a></li>
+    <li><a class="navlinks" href="/logout">sign Out</a></li>
+    {{else}}
+    <li><a class="navlinks" href="/signin">Sing In</a></li>
+    <li><a class="navlinks" href="/signup">Sing Up</a></li>
+    {{end}}
+  </ul>
+</header>
+{{end}}

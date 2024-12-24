@@ -1,14 +1,22 @@
 <!DOCTYPE html>
 <html>
-<body>
-    <h1>Login</h1>
-    <form method="POST" action="/login">
-        <label for="email">Email:</label>
-        <input type="email" name="email" required><br>
-        <label for="password">Password:</label>
-        <input type="password" name="password" required><br>
+  <head>
+    <link rel="stylesheet" href="/css/global.css" />
+    <link rel="stylesheet" href="/css/navbar.css" />
+    <link rel="stylesheet" href="/css/log.css" />
+  </head>
+
+  <body>
+    {{template "navbar" .}}
+    <div class="formcontainer">
+      <h1>Sign In</h1>
+      <form class="logform" method="POST" action="/signin">
+        <label class="lbl" for="email">Email:</label>
+        <input class="imp" type="email" name="email" required /><br />
+        <label class="lbl" for="password">Password:</label>
+        <input class="imp" type="password" name="password" required /><br />
         <button type="submit">Login</button>
-    </form>
-    <a href="/logup">Log up</a>
-</body>
+      </form>
+    </div>
+  </body>
 </html>

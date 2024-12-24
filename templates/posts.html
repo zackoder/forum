@@ -1,5 +1,3 @@
-{{ define "posts" }}
-
 <section id="posts-container"></section>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-min.js"></script>
 <script>
@@ -14,6 +12,7 @@
       const postId = postElement.getAttribute("data-post-id");
 
       if (event.target.classList.contains("like-btn")) {
+        alert("action");
         handleLike(postId, true);
       } else if (event.target.classList.contains("dislike-btn")) {
         handleLike(postId, false);
@@ -87,13 +86,8 @@
       .catch((error) => console.error("Error submitting comment:", error));
   }
 
-  let home = "home";
   let profile = document.getElementById("profile");
-  if (profile) {
-    profile.addEventListener("click", () => {
-      loadMorePosts(profile);
-    });
-  } else {
+  if (!profile) {
     document.getElementById("posts-container").style.paddingTop = "120px";
   }
 
@@ -101,124 +95,103 @@
   const limit = 20;
   let loading = false;
 
-  async function loadMorePosts(name = "home") {
-    console.log(name);
+  function createPosts(posts) {
+    const postsContainer = document.getElementById("posts-container");
+    posts.forEach((post) => {
+      const postElement = document.createElement("div");
+      postElement.className = "post-container";
+      postElement.dataset.postId = post.ID;
 
-    if (loading) return;
-    loading = true;
+      /* h2 will contain the image and name of the persen who posted */
+      const posterName = createEle("h2");
+      posterName.className = "poster";
+      const posterImg = createEle("img");
+      posterImg.src =
+        "/css/466006304_871124095226532_8631138819273739648_n.jpg";
+      const nameContainer = createEle("span");
+      nameContainer.innerText = post.UserName;
+      posterName.appendChild(posterImg);
+      posterName.appendChild(nameContainer);
+      postElement.appendChild(posterName);
 
-    try {
-      console.log("hello");
-      const response = await fetch(
-        `/fetch-posts?offset=${offset}&name=${name}`
-      );
+      /* creating a div that will contain all the elements bellow */
+      const pc = createEle("div");
+      pc.className = "pc";
 
-      const posts = await response.json();
-      if (!posts || posts.length === 0) return;
+      /* creating an h3 element to contain the post title */
+      const title = createEle("h3");
+      title.className = "title";
+      title.innerText = post.Title;
 
-      const postsContainer = document.getElementById("posts-container");
-      posts.forEach((post) => {
-        const postElement = document.createElement("div");
-        postElement.className = "post-container";
-        postElement.dataset.postId = post.ID;
+      /* creating a p element that will contain the content of the post */
+      const content = createEle("p");
+      content.className = "content";
+      content.innerText = post.Content;
+      pc.append(title, content);
 
-        /* h2 will contain the image and name of the persen who posted */
-        const posterName = createEle("h2");
-        posterName.className = "poster";
-        const posterImg = createEle("img");
-        posterImg.src =
-          "/css/466006304_871124095226532_8631138819273739648_n.jpg";
-        const nameContainer = createEle("span");
-        nameContainer.innerText = post.UserName;
-        posterName.appendChild(posterImg);
-        posterName.appendChild(nameContainer);
-        postElement.appendChild(posterName);
+      /* creating like and dislike button */
+      const like_dislike_container = createEle("div");
+      like_dislike_container.className = "like-dislike-container";
 
-        /* creating a div that will contain all the elements bellow */
-        const pc = createEle("div");
-        pc.className = "pc";
+      /* creating of the like button */
+      const likebnt = createEle("button");
+      likebnt.className = "like-btn";
 
-        /* creating an h3 element to contain the post title */
-        const title = createEle("h3");
-        title.className = "title";
-        title.innerText = post.Title;
+      /* create an img element to contain like icon */
+      const likeIcon = createEle("img");
+      likeIcon.src = "/css/like.png";
 
-        /* creating a p element that will contain the content of the post */
-        const content = createEle("p");
-        content.className = "content";
-        content.innerText = post.Content;
-        pc.append(title, content);
+      likebnt.appendChild(likeIcon);
 
-        /* creating like and dislike button */
-        const like_dislike_container = createEle("div");
-        like_dislike_container.className = "like-dislike-container";
+      /* creationg of the dislike button */
+      const dislikebnt = createEle("button");
+      dislikebnt.className = "dislike-btn";
 
-        /* creating of the like button */
-        const likebnt = createEle("button");
-        likebnt.className = "like-btn";
+      /* creating an img tag to containg dislike icon */
+      const dislikeIcone = createEle("img");
+      dislikeIcone.src = "/css/dislike.png";
 
-        /* create an img element to contain like icon */
-        const likeIcon = createEle("img");
-        likeIcon.src = "/css/like.png";
+      dislikebnt.appendChild(dislikeIcone);
 
-        likebnt.appendChild(likeIcon);
+      /* appending like and dislike buttons to like container */
+      like_dislike_container.append(likebnt, dislikebnt);
 
-        /* creationg of the dislike button */
-        const dislikebnt = createEle("button");
-        dislikebnt.className = "dislike-btn";
+      /* appending like container to the post contaner */
+      pc.appendChild(like_dislike_container);
 
-        /* creating an img tag to containg dislike icon */
-        const dislikeIcone = createEle("img");
-        dislikeIcone.src = "/css/dislike.png";
+      /* adding a button to see comments */
+      const seecomments = createEle("button");
+      seecomments.className = "see_comments";
+      seecomments.innerText = "see comments";
+      pc.appendChild(seecomments);
+      /* creating the form that sends comments */
+      const comment_form = createEle("form");
+      comment_form.method = "POST";
+      comment_form.className = "comment_form";
 
-        dislikebnt.appendChild(dislikeIcone);
+      const title_impt = createEle("input");
+      title_impt.className = "comment";
+      title_impt.name = "comment";
+      title_impt.type = "text";
+      title_impt.placeholder = "Add your comment";
+      title_impt.required = true;
 
-        /* appending like and dislike buttons to like container */
-        like_dislike_container.append(likebnt, dislikebnt);
+      const submit_comment = createEle("button");
+      submit_comment.className = "send_comment";
+      submit_comment.type = "submit";
 
-        /* appending like container to the post contaner */
-        pc.appendChild(like_dislike_container);
+      const send_icon = createEle("img");
+      send_icon.className = "sendimg";
+      send_icon.src = "/css/send-message.png";
+      submit_comment.appendChild(send_icon);
+      comment_form.appendChild(title_impt);
+      comment_form.appendChild(submit_comment);
 
-        /* adding a button to see comments */
-        const seecomments = createEle("button")
-        seecomments.className = "see_comments"
-        seecomments.innerText = "see comments"
-        pc.appendChild(seecomments)
-        /* creating the form that sends comments */
-        const comment_form = createEle("form");
-        comment_form.method = "POST";
-        comment_form.className = "comment_form";
+      pc.appendChild(comment_form);
+      postElement.appendChild(pc);
 
-        const title_impt = createEle("input");
-        title_impt.className = "comment";
-        title_impt.name = "comment";
-        title_impt.type = "text";
-        title_impt.placeholder = "Add your comment";
-        title_impt.required = true;
-
-        const submit_comment = createEle("button");
-        submit_comment.className = "send_comment";
-        submit_comment.type = "submit";
-
-        const send_icon = createEle("img");
-        send_icon.className = "sendimg";
-        send_icon.src = "/css/send-message.png";
-        submit_comment.appendChild(send_icon);
-        comment_form.appendChild(title_impt);
-        comment_form.appendChild(submit_comment);
-
-        pc.appendChild(comment_form);
-        postElement.appendChild(pc);
-
-        postsContainer.appendChild(postElement);
-      });
-
-      offset += limit;
-    } catch (error) {
-      console.error("Error loading posts:", error);
-    } finally {
-      loading = false;
-    }
+      postsContainer.appendChild(postElement);
+    });
   }
 
   function createEle(elename) {
@@ -227,8 +200,7 @@
 
   const showPostFormButton = document.querySelector(".show-postForm");
   const postForm = document.querySelector(".postForm");
-  const layout = document.querySelector(".lay-out"); // Optional dimmed background
-
+  const layout = document.querySelector(".lay-out");
   // Show the form
   showPostFormButton.addEventListener("click", () => {
     postForm.style.display = "flex";
@@ -243,40 +215,17 @@
     document.body.style.overflow = "";
   });
 
-  /*   let lay_outbtn = document.querySelector(".show-postForm");
-
-  lay_outbtn.addEventListener("click", () => {
-    let layOutDiv = document.querySelector(".lay-out");
-    let postForm = document.querySelector(".postForm");
-
-    if (layOutDiv.classList.contains("active")) {
-      layOutDiv.classList.remove("active");
-      postForm.classList.remove("active");
-      layOutDiv.style.display = "none";
-      postForm.style.display = "none";
-    } else if (!layOutDiv.classList.contains("active")) {
-      layOutDiv.classList.add("active");
-      postForm.classList.add("active");
-      layOutDiv.style.display = "block";
-      postForm.style.display = "flex";
-      document.body.style.overflow = "hidden";
-    }
-  }); */
-
   document.addEventListener("DOMContentLoaded", () => {
     const postsContainer = document.getElementById("posts-container");
-    const profileLink = document.getElementById("profile");
 
     if (profileLink) {
       profileLink.addEventListener("click", async (event) => {
-        event.preventDefault(); // Prevent default navigation
-
-        // Clear existing posts
+        event.preventDefault();
         postsContainer.innerHTML = "";
 
-        // Fetch posts for the profile
         try {
-          const response = await fetch("/fetch-posts?offset=0&name=profile");
+          offset = 0;
+          const response = await fetch(`/profile?offset=${offset}`);
           if (!response.ok) {
             throw new Error(
               `Error fetching profile posts: ${response.statusText}`
@@ -284,7 +233,6 @@
           }
 
           const posts = await response.json();
-          renderPosts(posts, postsContainer);
         } catch (error) {
           console.error("Failed to fetch profile posts:", error);
           postsContainer.innerHTML =
@@ -294,45 +242,6 @@
     }
   });
 
-  // function renderPosts(posts, container) {
-  //   if (!posts || posts.length === 0) {
-  //     container.innerHTML = "<p>No posts to show.</p>";
-  //     return;
-  //   }
-
-  //   posts.forEach((post) => {
-  //     const postElement = document.createElement("div");
-  //     postElement.className = "post-container";
-  //     postElement.dataset.postId = post.ID;
-
-  //     const posterName = document.createElement("h2");
-  //     posterName.className = "poster";
-  //     const posterImg = document.createElement("img");
-  //     posterImg.src =
-  //       "/css/466006304_871124095226532_8631138819273739648_n.jpg"; // Example image
-  //     const nameContainer = document.createElement("span");
-  //     nameContainer.innerText = post.UserName;
-  //     posterName.append(posterImg, nameContainer);
-  //     postElement.appendChild(posterName);
-
-  //     const pc = document.createElement("div");
-  //     pc.className = "pc";
-
-  //     const title = document.createElement("h3");
-  //     title.className = "title";
-  //     title.innerText = post.Title;
-
-  //     const content = document.createElement("p");
-  //     content.className = "content";
-  //     content.innerText = post.Content;
-
-  //     pc.append(title, content);
-  //     postElement.appendChild(pc);
-
-  //     container.appendChild(postElement);
-  //   });
-  // }
-
   function handleScroll() {
     const scrollPosition = window.scrollY + window.innerHeight;
     const threshold = document.body.scrollHeight - 1000;
@@ -341,8 +250,4 @@
       loadMorePosts();
     }
   }
-  setInterval(() => {
-    loadMorePosts();
-  }, 5000);
 </script>
-{{ end }}
