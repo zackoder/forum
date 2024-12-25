@@ -283,6 +283,10 @@
 }
 
 @media (max-width: 480px) {
+
+  body {
+    overflow-x: hidden;
+  }
   .logo {
     font-size: 1.5rem;
   }
@@ -293,33 +297,13 @@
   }
 
   .post-container {
-    width: 95%;
-  }
-
-  .comment {
-    height: 25px;
-    font-size: 0.9rem;
-  }
-
-  .like-btn,
-  .dislike-btn {
-    font-size: 16px;
-    width: 50px;
-  }
-}
-
-@media (min-width: 300px) and (max-width: 480px) {
-  .logo {
-    font-size: 1.5rem;
-  }
-
-  .greeting {
-    padding: 100px 10px;
-    font-size: 1rem;
-  }
-
-  .post-container {
-    width: 95%;
+    margin: 0 auto; /* Center the container */
+    width: 90%; /* Use a percentage to allow shrinking */
+    max-width: 400px; /* Maximum size */
+    min-width: 250px; /* Minimum size */
+    padding: 10px; /* Add padding for better spacing */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Optional: subtle shadow */
+    border-radius: 8px; /* Optional: rounded corners */
   }
 
   .comment {
