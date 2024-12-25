@@ -9,7 +9,7 @@
   <body>
     {{template "navbar" .}}
     <div class="formcontainer">
-      <h1>Sign up</h1>
+      <h1 class="head">Sign up</h1>
       <form class="logform" method="POST" action="/signup">
         <label class="lbl" for="email">Email:</label>
         <input class="imp" type="email" name="email" required /><br />
@@ -17,7 +17,7 @@
         <input class="imp" type="text" name="username" required /><br />
         <label class="lbl" for="password">Password:</label>
         <input class="imp" type="password" name="password" required /><br />
-        <button type="submit">Register</button>
+        <button class="submit" type="submit">Register</button>
       </form>
     </div>
   </body>

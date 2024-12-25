@@ -8,6 +8,7 @@
     --dislike-hover: #f66764;
     --post-background: rgba(244, 244, 244, 0.8);
     --shadow: 0 0 5px 2px gray;
+    --font: Arial, sans-serif;
   }
   
   * {
@@ -18,7 +19,7 @@
   
   body {
     background-color: var(--background-color);
-    font-family: Arial, sans-serif;
+    font-family: var(--font);
     line-height: 1.6;
     color: var(--text-color);
     display: flex;
