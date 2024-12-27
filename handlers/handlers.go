@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -44,7 +43,7 @@ func (db *Handeldb) AddPosts(w http.ResponseWriter, r *http.Request) {
 	// }
 	title := r.FormValue("title")
 	content := r.FormValue("content")
-	if _, err := db.DB.Exec(query, usrId, title, strings.ReplaceAll(strings.TrimSpace(content), "\r\n", "<br>"), 1); err != nil {
+	if _, err := db.DB.Exec(query, usrId, title, content, 1); err != nil {
 		fmt.Println(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -131,37 +130,6 @@ func (db *Handeldb) HomePage(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Template execution error:", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
-}
-
-func (db *Handeldb) CreatePostPage(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("session_token")
-	if err != nil {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-		return
-	}
-
-	if r.Method == http.MethodPost {
-		title := r.FormValue("title")
-		content := r.FormValue("content")
-
-		var userID int
-		err := db.DB.QueryRow("SELECT user_id FROM sessions WHERE token = ?", cookie.Value).Scan(&userID)
-		if err != nil {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
-			return
-		}
-
-		_, err = db.DB.Exec(`INSERT INTO posts (user_id, title, content, category_id) VALUES (?, ?, ?, ?)`, userID, title, content, 1)
-		if err != nil {
-			http.Error(w, "Unable to create post", http.StatusInternalServerError)
-			return
-		}
-
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-	}
-
-	tmp, _ := template.ParseFiles("./templates/create_post.html")
-	tmp.Execute(w, nil)
 }
 
 /* like posts handler */
@@ -288,7 +256,7 @@ func (db *Handeldb) Addcomment(w http.ResponseWriter, r *http.Request) {
 }
 
 func (db *Handeldb) Profile(w http.ResponseWriter, r *http.Request) {
-	
+
 	cookie, err := r.Cookie("session_token")
 	if err != nil {
 		fmt.Println(err)

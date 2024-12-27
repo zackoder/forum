@@ -24,7 +24,6 @@ func main() {
 	http.HandleFunc("/", Db.HomePage)
 	http.HandleFunc("/signup", Db.RegisterPage)
 	http.HandleFunc("/signin", Db.LoginPage)
-	http.HandleFunc("/create-post", Db.CreatePostPage)
 	http.HandleFunc("/like-post", Db.LikePost)
 	http.HandleFunc("/logout", Db.Logout)
 	http.HandleFunc("/profile", Db.ProfileData)
