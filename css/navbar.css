@@ -55,18 +55,9 @@ header {
     flex-wrap: wrap;
     gap: 10px;
   }
-
-  .post-container {
-    width: 90%;
-  }
 }
 
 @media (max-width: 480px) {
-  header {
-    flex-direction: column;
-    padding: 10px;
-  }
-
   .navbar {
     flex-wrap: wrap;
     gap: 10px;

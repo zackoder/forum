@@ -8,7 +8,7 @@
   background-color: var(--post-background);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   width: 60%;
-  margin: 20px auto;
+  margin: 20px 0;
   padding: 20px;
   border-radius: 8px;
   display: flex;
@@ -230,10 +230,6 @@
 }
 
 @media (max-width: 1024px) {
-  .post-container {
-    width: 80%;
-  }
-
   .greeting {
     padding: 120px 20px 25px;
   }
@@ -249,33 +245,23 @@
     padding: 10px;
   }
 
-  .post-container {
-    width: 90%;
-  }
-
   .greeting {
     font-size: 1.2rem;
   }
 }
 
 @media (max-width: 480px) {
-
-  body {
-    overflow-x: hidden;
-  }
-
   .logo {
     font-size: 1.5rem;
   }
 
   .greeting {
-    padding: 100px 10px;
+    padding: 120px 10px;
     font-size: 1rem;
   }
 
   .post-container {
-    margin: 0 auto; 
-    width: 90%; 
+    width: 100%;
     max-width: 400px;
     min-width: 250px;
     padding: 10px;
