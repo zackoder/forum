@@ -20,14 +20,14 @@ type Handeldb struct {
 	DB *sql.DB
 }
 
-// User registration
-type Userinfo struct {
-	Logdin bool
-}
-
-var userinfo = Userinfo{Logdin: false}
 
 func (db *Handeldb) RegisterPage(w http.ResponseWriter, r *http.Request) {
+	_, err := r.Cookie("session_token")
+	if err == nil {
+		fmt.Println("cookie does exist")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 	if r.Method == http.MethodPost {
 		email := r.FormValue("email")
 		username := r.FormValue("username")
@@ -77,7 +77,7 @@ func (db *Handeldb) RegisterPage(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	err = tmp.ExecuteTemplate(w, "logup.html", userinfo)
+	err = tmp.ExecuteTemplate(w, "logup.html", nil)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -85,6 +85,12 @@ func (db *Handeldb) RegisterPage(w http.ResponseWriter, r *http.Request) {
 
 // User login
 func (db *Handeldb) LoginPage(w http.ResponseWriter, r *http.Request) {
+	_, err := r.Cookie("session_token")
+	if err == nil {
+		fmt.Println("cookie does exist")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
 	if r.Method == http.MethodPost {
 		email := r.FormValue("email")
 		password := r.FormValue("password")
@@ -138,7 +144,7 @@ func (db *Handeldb) LoginPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	tmp, _ := template.ParseGlob("./templates/*.html")
-	tmp.ExecuteTemplate(w, "login.html", userinfo)
+	tmp.ExecuteTemplate(w, "login.html", nil)
 }
 
 // Generate session token

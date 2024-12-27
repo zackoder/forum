@@ -128,26 +128,6 @@
   display: block;
 }
 
-/* .see_comments::before,
-.see_comments::after {
-  content: "";
-  display: block;
-  position: absolute;
-  top: 50%;
-  width: 300%;
-  height: 1px; 
-  background-color: #292929; 
-  transform: translateY(-50%);
-}
-
-.see_comments::before {
-  left: -310%;
-}
-
-.see_comments::after {
-  right: -310%;
-} */
-
 .comment_form {
   width: 90%;
   margin-top: 10px;
@@ -269,11 +249,6 @@
     padding: 10px;
   }
 
-  .navbar {
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
   .post-container {
     width: 90%;
   }
@@ -284,9 +259,11 @@
 }
 
 @media (max-width: 480px) {
+
   body {
     overflow-x: hidden;
   }
+
   .logo {
     font-size: 1.5rem;
   }
@@ -297,19 +274,23 @@
   }
 
   .post-container {
-    margin: 0 auto; /* Center the container */
-    width: 90%; /* Use a percentage to allow shrinking */
-    max-width: 400px; /* Maximum size */
-    min-width: 250px; /* Minimum size */
-    padding: 10px; /* Add padding for better spacing */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Optional: subtle shadow */
-    border-radius: 8px; /* Optional: rounded corners */
+    margin: 0 auto; 
+    width: 90%; 
+    max-width: 400px;
+    min-width: 250px;
+    padding: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
     margin-bottom: 20px;
   }
 
   .comment {
     height: 25px;
     font-size: 0.9rem;
+  }
+
+  .poster .UserName {
+    left: 15%;
   }
 
   .like-btn,
