@@ -59,7 +59,7 @@
   border-radius: 50%;
 }
 
-.poster span {
+.UserName {
   position: absolute;
   top: 25%;
   left: 8%;
@@ -98,12 +98,6 @@
 
 .disliked {
   background-color: var(--dislike-hover);
-}
-
-.UserName {
-  margin-left: 15px;
-  position: absolute;
-  top: 25px;
 }
 
 .title {
@@ -249,6 +243,10 @@
   .greeting {
     font-size: 1.2rem;
   }
+
+  .UserName {
+    left: 15%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -259,6 +257,10 @@
   .greeting {
     padding: 120px 10px;
     font-size: 1rem;
+  }
+
+  .UserName {
+    left: 20%;
   }
 
   .post-container {
@@ -274,10 +276,6 @@
   .comment {
     height: 25px;
     font-size: 0.9rem;
-  }
-
-  .poster .UserName {
-    left: 15%;
   }
 
   .like-btn,
